@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Storytellers + Machines 2026 — The Feedback Terminal</title>
+<meta name="description" content="Audience responses from the End of AI feedback boards, Storytellers + Machines 2026, SODA Manchester.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&family=Handjet:wght@400;600;800&family=Crimson+Pro:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<div class="ticker" aria-hidden="true">
+  <div class="ticker-track" id="ticker-track"></div>
+</div>
+
+<header class="site-header">
+  <a href="#/" class="masthead" id="masthead">
+    <span class="masthead-top">STORYTELLERS + MACHINES 2026</span>
+    <span class="masthead-main">THE END OF A.I.</span>
+    <span class="masthead-sub">THE FEEDBACK TERMINAL</span>
+  </a>
+  <p class="masthead-note">Nine boards. One question: what comes after?<br>
+  Responses gathered on paper at SODA, 4–6 September 2026 — transcribed here.</p>
+</header>
+
+<nav class="board-nav" id="board-nav" aria-label="Boards"></nav>
+
+<main id="app" tabindex="-1"></main>
+
+<footer class="site-footer">
+  <span class="footer-pixel">▓▓░░</span>
+  <p>School of Digital Arts · Manchester Metropolitan University<br>
+  <a href="https://storytellersandmachines.xyz/" target="_blank" rel="noopener">storytellersandmachines.xyz</a></p>
+  <span class="footer-pixel">░░▓▓</span>
+</footer>
+
+<div class="lightbox" id="lightbox" hidden>
+  <button class="lightbox-close" id="lightbox-close" aria-label="Close image">✕</button>
+  <img id="lightbox-img" alt="">
+  <p class="lightbox-caption" id="lightbox-caption"></p>
+</div>
+
+<script src="data.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
