@@ -705,6 +705,59 @@ main {
 @keyframes tp-pop { from { opacity: 0; } }
 .scope-tp { animation: tp-pop 0.35s ease backwards; animation-delay: var(--delay, 0s); }
 
+/* masthead glitch: fires for a beat whenever the board changes */
+.masthead-main { position: relative; }
+.masthead-main.glitch { animation: glitch-shift 0.35s steps(1, end); }
+.masthead-main.glitch::before,
+.masthead-main.glitch::after {
+  content: attr(data-text);
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%;
+  pointer-events: none;
+}
+.masthead-main.glitch::before {
+  color: var(--postit);
+  z-index: -1;
+  animation: glitch-slice-a 0.35s steps(1, end) both;
+}
+.masthead-main.glitch::after {
+  color: var(--grey);
+  z-index: -2;
+  animation: glitch-slice-b 0.35s steps(1, end) both;
+}
+@keyframes glitch-shift {
+  0%   { transform: translate(0); }
+  20%  { transform: translate(-3px, 2px); }
+  40%  { transform: translate(2px, -1px); }
+  60%  { transform: translate(-2px, 1px); }
+  80%  { transform: translate(3px, -2px); }
+  100% { transform: translate(0); }
+}
+@keyframes glitch-slice-a {
+  0%   { transform: translate(5px, 0);  clip-path: inset(10% 0 60% 0); opacity: 1; }
+  33%  { transform: translate(-6px, 0); clip-path: inset(45% 0 30% 0); }
+  66%  { transform: translate(4px, 0);  clip-path: inset(70% 0 5% 0); }
+  100% { transform: translate(0);       clip-path: inset(50% 0 40% 0); opacity: 0; }
+}
+@keyframes glitch-slice-b {
+  0%   { transform: translate(-5px, 0); clip-path: inset(55% 0 20% 0); opacity: 1; }
+  33%  { transform: translate(5px, 0);  clip-path: inset(15% 0 70% 0); }
+  66%  { transform: translate(-3px, 0); clip-path: inset(80% 0 2% 0); }
+  100% { transform: translate(0);       clip-path: inset(30% 0 60% 0); opacity: 0; }
+}
+
+/* board photos print on row by row, like a dot-matrix printer */
+.photo-strip img,
+.eco-gallery img {
+  animation: print-reveal 1.2s steps(20, end) backwards;
+  animation-delay: inherit;
+}
+@keyframes print-reveal {
+  from { clip-path: inset(0 0 100% 0); }
+  to   { clip-path: inset(0 0 0 0); }
+}
+
 /* deprecation log prints line by line, with a live cursor */
 @keyframes log-print { from { opacity: 0; } }
 .deplog .log-line { animation: log-print 0.01s steps(1) backwards; }
@@ -725,6 +778,15 @@ main {
   .scope-path.draw { animation: none; stroke-dasharray: none; stroke-dashoffset: 0; }
   .postit, .postit:hover { transform: rotate(var(--tilt, 0deg)); transition: none; }
   .board-card, .board-card:hover { transition: none; }
+  .masthead-main.glitch,
+  .masthead-main.glitch::before,
+  .masthead-main.glitch::after,
+  .photo-strip img,
+  .eco-gallery img {
+    animation: none;
+  }
+  .masthead-main.glitch::before,
+  .masthead-main.glitch::after { content: none; }
 }
 
 /* ============================================================

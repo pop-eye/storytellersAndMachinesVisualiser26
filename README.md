@@ -25,7 +25,9 @@ Open the site fullscreen (F11) on a 16:9 screen and it switches into **presentat
 - **A** — autoplay: advance to the next board every 20 seconds (a ▶ AUTO badge shows while it's on)
 - **P** — force presentation mode on/off at any window size
 
-Elements animate in as each board loads — poll pixels pop in one by one, the journey traces draw themselves on like an oscilloscope sweep, post-its land with a stagger, and the deprecation log prints line by line. All animation respects the visitor's reduced-motion preference.
+For an unattended screen, add **`?kiosk`** to the URL (e.g. `…/index.html?kiosk#/status`): presentation mode and autoplay start by themselves — open it, hit F11, walk away.
+
+Elements animate in as each board loads — the END OF A.I. masthead glitches for a beat on every board change, poll pixels pop in one by one while their tallies count up from zero, the journey traces draw themselves on like an oscilloscope sweep, post-its land with a stagger, board photos print on row by row like a dot-matrix printer, and the deprecation log prints line by line. All animation respects the visitor's reduced-motion preference.
 
 ## Deploying to GitHub Pages
 

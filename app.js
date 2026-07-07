@@ -36,6 +36,18 @@ function stag(node, i, step = 0.05) {
   node.style.animationDelay = `${(i * step).toFixed(3)}s`;
   return node;
 }
+const REDUCED_MOTION = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+/* tick a number up from zero, in step with the poll dots popping in */
+function countUp(node, n, stepMs = 30) {
+  if (REDUCED_MOTION || n < 1) { node.textContent = n; return; }
+  node.textContent = 0;
+  let c = 0;
+  const t = setInterval(() => {
+    if (!document.body.contains(node)) { clearInterval(t); return; }
+    node.textContent = ++c;
+    if (c >= n) clearInterval(t);
+  }, stepMs);
+}
 function emptyState(parent, thing) {
   const d = el("div", "empty-state");
   d.appendChild(el("span", "no-signal", "NO SIGNAL"));
@@ -94,6 +106,18 @@ function route() {
   app.focus({ preventScroll: true });
   window.scrollTo({ top: 0, behavior: "instant" in window ? "instant" : "auto" });
   requestAnimationFrame(fitView);
+  glitchMasthead();
+}
+
+/* the END OF A.I. masthead flickers for a beat on every board change */
+function glitchMasthead() {
+  const mm = document.querySelector(".masthead-main");
+  if (!mm || REDUCED_MOTION) return;
+  mm.classList.remove("glitch");
+  void mm.offsetWidth; // restart the animation
+  mm.classList.add("glitch");
+  clearTimeout(glitchMasthead.t);
+  glitchMasthead.t = setTimeout(() => mm.classList.remove("glitch"), 400);
 }
 window.addEventListener("hashchange", route);
 
@@ -242,8 +266,10 @@ function renderStatus(view) {
     }
     row.appendChild(dots);
     poll.appendChild(row);
+    countUp(row.querySelector(".poll-num"), n); // recount from zero, in step with the dots
   });
-  poll.appendChild(el("p", "poll-total", `${total} VOTES LOGGED · ONE PIXEL EACH`));
+  poll.appendChild(el("p", "poll-total", `<span class="poll-grand">${total}</span> VOTES LOGGED · ONE PIXEL EACH`));
+  countUp(poll.querySelector(".poll-grand"), total, 20);
   view.appendChild(poll);
   photoStrip(view, DATA.status.photos);
 }
@@ -553,6 +579,12 @@ document.getElementById("lightbox-close").addEventListener("click", closeLightbo
 lightbox.addEventListener("click", e => { if (e.target === lightbox) closeLightbox(); });
 window.addEventListener("keydown", e => { if (e.key === "Escape" && !lightbox.hidden) closeLightbox(); });
 
-/* ---------- go ---------- */
+/* ---------- go ----------
+   ?kiosk starts hands-off: presentation mode forced on and autoplay
+   running — for an unattended screen at the venue. */
+if (new URLSearchParams(location.search).has("kiosk")) {
+  presentOverride = true;
+  setAutoplay(true);
+}
 applyPresenting();
 route();
