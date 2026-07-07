@@ -31,6 +31,11 @@ function esc(s) {
 function sampleFlag(parent) {
   if (SAMPLE_MODE) parent.appendChild(el("span", "sample-flag", "░ SAMPLE DATA — REAL RESPONSES TO FOLLOW ░"));
 }
+/* staggered entrance: nth element starts its rise animation a beat later */
+function stag(node, i, step = 0.05) {
+  node.style.animationDelay = `${(i * step).toFixed(3)}s`;
+  return node;
+}
 function emptyState(parent, thing) {
   const d = el("div", "empty-state");
   d.appendChild(el("span", "no-signal", "NO SIGNAL"));
@@ -41,8 +46,8 @@ function photoStrip(parent, photos) {
   if (!photos || !photos.length) return;
   parent.appendChild(el("span", "strip-label", "░ THE PHYSICAL BOARD ░"));
   const strip = el("div", "photo-strip");
-  photos.forEach(p => {
-    const f = el("figure");
+  photos.forEach((p, i) => {
+    const f = stag(el("figure"), i);
     f.innerHTML = `<img src="${esc(p.src)}" alt="${esc(p.caption || "Photo of the board")}" loading="lazy"><figcaption>${esc(p.caption || "")}</figcaption>`;
     f.addEventListener("click", () => openLightbox(p.src, p.caption));
     strip.appendChild(f);
@@ -88,24 +93,101 @@ function route() {
   app.appendChild(view);
   app.focus({ preventScroll: true });
   window.scrollTo({ top: 0, behavior: "instant" in window ? "instant" : "auto" });
+  requestAnimationFrame(fitView);
 }
 window.addEventListener("hashchange", route);
 
-/* keyboard: ← → between boards */
+/* keyboard: ← → between boards · A autoplay · P presentation mode */
 window.addEventListener("keydown", e => {
-  if (e.target.matches("input, textarea") || !["ArrowLeft", "ArrowRight"].includes(e.key)) return;
+  if (e.target.matches("input, textarea")) return;
+  const key = e.key.toLowerCase();
+  if (key === "a") { setAutoplay(!autoTimer); return; }
+  if (key === "p") { togglePresenting(); return; }
+  if (!["ArrowLeft", "ArrowRight"].includes(e.key)) return;
   const hash = location.hash.replace(/^#\/?/, "");
   const i = BOARDS.findIndex(b => b.id === hash);
   if (e.key === "ArrowRight") location.hash = `#/${BOARDS[(i + 1 + BOARDS.length) % BOARDS.length].id}`;
   if (e.key === "ArrowLeft") location.hash = `#/${BOARDS[(i - 1 + BOARDS.length) % BOARDS.length].id}`;
+  if (autoTimer) setAutoplay(true); // manual step restarts the autoplay clock
 });
+
+/* ---------- presentation mode ----------
+   On wide landscape screens (fullscreen 16:9 projection) the page
+   chrome compacts into a fixed full-height layout and each view is
+   scaled down, if needed, so nothing ever scrolls. Auto-detected
+   via media query; the P key forces it on/off. */
+const presentMQ = window.matchMedia("(min-width: 1100px) and (min-aspect-ratio: 3/2)");
+let presentOverride = null; // null = follow media query
+
+function presentingNow() {
+  return presentOverride === null ? presentMQ.matches : presentOverride;
+}
+function applyPresenting() {
+  document.documentElement.classList.toggle("presenting", presentingNow());
+  fitView();
+}
+function togglePresenting() {
+  presentOverride = !presentingNow();
+  if (presentOverride === presentMQ.matches) presentOverride = null; // back in step → follow auto again
+  applyPresenting();
+}
+presentMQ.addEventListener("change", applyPresenting);
+
+function fitView() {
+  const view = app.querySelector(".view");
+  if (!view) return;
+  view.style.transform = "";
+  view.style.width = "";
+  view.style.transformOrigin = "";
+  if (!document.documentElement.classList.contains("presenting")) return;
+  const cs = getComputedStyle(app);
+  const avail = app.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom);
+  // shrinking widens the view, letting content reflow shorter — refine until it fits
+  let scale = 1;
+  for (let pass = 0; pass < 4; pass++) {
+    const needed = view.scrollHeight;
+    if (needed * scale <= avail + 1) return; // fits
+    scale = Math.max(0.35, avail / needed);
+    view.style.width = `${(100 / scale).toFixed(2)}%`;
+    view.style.transform = `scale(${scale.toFixed(4)})`;
+    if (view.scrollHeight > needed) {
+      // content grows with width (aspect-ratio media) — scale down without widening
+      view.style.width = "";
+      view.style.transformOrigin = "top center";
+      view.style.transform = `scale(${Math.max(0.35, avail / view.scrollHeight).toFixed(4)})`;
+      return;
+    }
+  }
+}
+window.addEventListener("resize", fitView);
+if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitView);
+
+/* ---------- autoplay: cycle boards every 20s (toggle with A) ---------- */
+const AUTOPLAY_MS = 20000;
+let autoTimer = null;
+const autoBadge = el("div", "autoplay-badge", `<span class="dot">▶</span> AUTO`);
+autoBadge.hidden = true;
+document.body.appendChild(autoBadge);
+
+function setAutoplay(on) {
+  clearInterval(autoTimer);
+  autoTimer = null;
+  if (on) {
+    autoTimer = setInterval(() => {
+      const hash = location.hash.replace(/^#\/?/, "");
+      const i = BOARDS.findIndex(b => b.id === hash);
+      location.hash = `#/${BOARDS[(i + 1) % BOARDS.length].id}`;
+    }, AUTOPLAY_MS);
+  }
+  autoBadge.hidden = !on;
+}
 
 /* ---------- home ---------- */
 function renderHome(view) {
   const grid = el("div", "home-grid");
-  BOARDS.forEach(b => {
+  BOARDS.forEach((b, i) => {
     const n = b.count(DATA);
-    const card = el("a", "board-card");
+    const card = stag(el("a", "board-card"), i);
     card.href = `#/${b.id}`;
     card.innerHTML = `
       <span class="card-id">BOARD ${b.num}</span>
@@ -226,6 +308,7 @@ function renderJourney(view) {
       const c = document.createElementNS("http://www.w3.org/2000/svg", "circle");
       c.setAttribute("cx", X(tp.x)); c.setAttribute("cy", Y(tp.y));
       c.setAttribute("r", 7); c.setAttribute("class", "scope-tp");
+      c.style.setProperty("--delay", `${idx * 0.18 + 1.2}s`);
       c.addEventListener("mouseenter", ev => {
         highlight(idx);
         showTip(ev, `${ln.label}: ${tp.text}`);
@@ -257,6 +340,13 @@ function renderJourney(view) {
   wrap.appendChild(svg);
   wrap.appendChild(tooltip);
   view.appendChild(wrap);
+
+  // draw each trace on like an oscilloscope sweep
+  paths.forEach((p, i) => {
+    p.style.setProperty("--len", p.getTotalLength());
+    p.style.setProperty("--delay", `${i * 0.18}s`);
+    p.classList.add("draw");
+  });
 
   const legend = el("div", "scope-legend");
   const legendBtns = lines.map((ln, idx) => {
@@ -292,11 +382,11 @@ function renderCelebrate(view) {
   const wall = el("div", "split-wall");
   const colA = el("div", "split-col celebrate", `<h3>Would celebrate…</h3>`);
   const ulA = el("ul");
-  d.celebrate.forEach(t => ulA.appendChild(el("li", null, esc(t))));
+  d.celebrate.forEach((t, i) => ulA.appendChild(stag(el("li", null, esc(t)), i, 0.07)));
   colA.appendChild(ulA);
   const colB = el("div", "split-col miss", `<h3>Would miss…</h3>`);
   const ulB = el("ul");
-  d.miss.forEach(t => ulB.appendChild(el("li", null, esc(t))));
+  d.miss.forEach((t, i) => ulB.appendChild(stag(el("li", null, esc(t)), i, 0.07)));
   colB.appendChild(ulB);
   wall.append(colA, colB);
   view.appendChild(wall);
@@ -316,8 +406,8 @@ function renderObituary(view) {
       <span class="obit-strap">In memoriam · Deaths, generative · Final edition</span>
     </div>`;
   const cols = el("div", "obit-cols");
-  entries.forEach(o => {
-    const item = el("article", "obit");
+  entries.forEach((o, i) => {
+    const item = stag(el("article", "obit"), i, 0.15);
     item.innerHTML = `
       ${o.lede ? `<p class="obit-lede">${esc(o.lede)}</p>` : ""}
       <p>${esc(o.text)}</p>
@@ -337,8 +427,8 @@ function renderThirdWay(view) {
 
   const wall = el("div", "postit-wall");
   entries.forEach((e, i) => {
-    const note = el("div", `postit ${e.type === "written" ? "written" : ""}`);
-    note.style.transform = `rotate(${((i * 137) % 7) - 3}deg)`; // deterministic wobble
+    const note = stag(el("div", `postit ${e.type === "written" ? "written" : ""}`), i, 0.08);
+    note.style.setProperty("--tilt", `${((i * 137) % 7) - 3}deg`); // deterministic wobble
     note.innerHTML = `${esc(e.text)}<span class="postit-meta">${e.type === "written" ? "written on board" : "post-it"}</span>`;
     wall.appendChild(note);
   });
@@ -354,10 +444,10 @@ function renderReplace(view) {
 
   const max = Math.max(...entries.map(e => e.count || 1));
   const wall = el("div", "ballot-wall");
-  [...entries].sort((a, b) => (b.count || 1) - (a.count || 1)).forEach(e => {
+  [...entries].sort((a, b) => (b.count || 1) - (a.count || 1)).forEach((e, i) => {
     const n = e.count || 1;
     const size = max <= 1 ? 1 : Math.min(4, 1 + Math.round((n / max) * 3));
-    const b = el("div", "ballot", `${esc(e.text)}${n > 1 ? `<span class="tally">×${n}</span>` : ""}`);
+    const b = stag(el("div", "ballot", `${esc(e.text)}${n > 1 ? `<span class="tally">×${n}</span>` : ""}`), i, 0.07);
     b.dataset.size = size;
     wall.appendChild(b);
   });
@@ -373,8 +463,8 @@ function renderStopped(view) {
 
   const log = el("div", "deplog");
   log.setAttribute("role", "list");
-  entries.forEach(e => {
-    const line = el("div", "log-line");
+  entries.forEach((e, i) => {
+    const line = stag(el("div", "log-line"), i, 0.35);
     line.setAttribute("role", "listitem");
     line.innerHTML = `<span class="log-tag">DEPRECATED</span><span class="log-what">${esc(e.what)}</span><span class="log-why">${esc(e.why)}</span>`;
     log.appendChild(line);
@@ -425,7 +515,7 @@ function renderBeginning(view) {
   obs.observe(app, { childList: true });
 
   const list = el("ul", "beginning-list");
-  entries.forEach(t => list.appendChild(el("li", null, esc(t))));
+  entries.forEach((t, i) => list.appendChild(stag(el("li", null, esc(t)), i, 0.06)));
   view.appendChild(list);
   photoStrip(view, DATA.beginning.photos);
 }
@@ -437,8 +527,8 @@ function renderEco(view) {
   sampleFlag(view);
 
   const gal = el("div", "eco-gallery");
-  entries.forEach(e => {
-    const f = el("figure");
+  entries.forEach((e, i) => {
+    const f = stag(el("figure"), i, 0.07);
     f.innerHTML = `<img src="${esc(e.src)}" alt="${esc(e.caption || "Ecological footprint drawing")}" loading="lazy"><figcaption>${esc(e.caption || "")}</figcaption>`;
     f.addEventListener("click", () => openLightbox(e.src, e.caption));
     gal.appendChild(f);
@@ -464,4 +554,5 @@ lightbox.addEventListener("click", e => { if (e.target === lightbox) closeLightb
 window.addEventListener("keydown", e => { if (e.key === "Escape" && !lightbox.hidden) closeLightbox(); });
 
 /* ---------- go ---------- */
+applyPresenting();
 route();

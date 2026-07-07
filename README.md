@@ -17,6 +17,16 @@ A static site that presents the nine "End of AI" A1 feedback boards from the con
 | 08 | The beginning of… | Typewriter cycle + full list |
 | 09 | Ecological footprint drawings | Photo gallery with lightbox |
 
+## Presenting to a room
+
+Open the site fullscreen (F11) on a 16:9 screen and it switches into **presentation mode** automatically: the header and navigation compact, scrolling is eliminated (a board that runs long is scaled down to fit), faint CRT scanlines appear, and a keyboard hint shows in the footer.
+
+- **← / →** — step between boards
+- **A** — autoplay: advance to the next board every 20 seconds (a ▶ AUTO badge shows while it's on)
+- **P** — force presentation mode on/off at any window size
+
+Elements animate in as each board loads — poll pixels pop in one by one, the journey traces draw themselves on like an oscilloscope sweep, post-its land with a stagger, and the deprecation log prints line by line. All animation respects the visitor's reduced-motion preference.
+
 ## Deploying to GitHub Pages
 
 Deployment is automated: every push to `main` runs the workflow in `.github/workflows/deploy-pages.yml`, which enables GitHub Pages on first run and publishes the site to
