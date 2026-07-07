@@ -19,20 +19,15 @@ A static site that presents the nine "End of AI" A1 feedback boards from the con
 
 ## Deploying to GitHub Pages
 
-1. Create a new repository (e.g. `sm-feedback-terminal`) on GitHub.
-2. Push these files to the `main` branch:
-   ```bash
-   git init
-   git add .
-   git commit -m "Feedback terminal"
-   git branch -M main
-   git remote add origin git@github.com:YOUR-USER/sm-feedback-terminal.git
-   git push -u origin main
-   ```
-3. In the repo: **Settings → Pages → Source: Deploy from a branch → main / (root) → Save**.
-4. The site appears at `https://YOUR-USER.github.io/sm-feedback-terminal/` within a minute or two.
+Deployment is automated: every push to `main` runs the workflow in `.github/workflows/deploy-pages.yml`, which enables GitHub Pages on first run and publishes the site to
 
-Updating content later is just a commit: edit `data.js`, drop images in `photos/`, push.
+```
+https://pop-eye.github.io/storytellersAndMachinesVisualiser26/
+```
+
+Updating content later is just a commit: edit `data.js`, drop images in `photos/`, push to `main`.
+
+If the first workflow run can't enable Pages itself (organisation permission settings vary), enable it once by hand: **Settings → Pages → Source: GitHub Actions**, then re-run the workflow from the Actions tab.
 
 ## Populating with real responses
 
