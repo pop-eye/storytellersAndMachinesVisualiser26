@@ -401,7 +401,15 @@ main {
   position: relative;
   display: flex;
   flex-direction: column;
+  transform: rotate(var(--tilt, 0deg));
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
 }
+.postit:hover {
+  transform: rotate(0deg) scale(1.04);
+  box-shadow: 6px 9px 0 rgba(13,13,13,0.22);
+  z-index: 1;
+}
+.postit.written:hover { box-shadow: none; }
 .postit::before {
   content: "";
   position: absolute;
@@ -656,3 +664,171 @@ main {
   .site-header { padding-top: 2rem; }
   .postit { width: 100%; min-height: auto; }
 }
+
+/* ============================================================
+   ENTRANCE ANIMATIONS
+   Elements arrive with a small staggered rise; delays are set
+   inline by app.js. Everything is disabled for reduced motion.
+   ============================================================ */
+@keyframes rise {
+  from { opacity: 0; transform: translateY(14px); }
+}
+.board-card,
+.ballot,
+.obit,
+.split-col li,
+.beginning-list li,
+.eco-gallery figure,
+.photo-strip figure {
+  animation: rise 0.45s ease backwards;
+}
+
+@keyframes postit-rise {
+  from { opacity: 0; transform: translateY(18px) rotate(var(--tilt, 0deg)) scale(0.94); }
+  to   { transform: rotate(var(--tilt, 0deg)); }
+}
+.postit { animation: postit-rise 0.5s ease backwards; }
+
+/* balance bar wipes open from both ends */
+@keyframes bar-grow { from { transform: scaleX(0); } }
+.balance-bar .side-a { transform-origin: left center;  animation: bar-grow 0.9s cubic-bezier(0.2, 0.7, 0.3, 1) backwards; }
+.balance-bar .side-b { transform-origin: right center; animation: bar-grow 0.9s cubic-bezier(0.2, 0.7, 0.3, 1) 0.1s backwards; }
+
+/* oscilloscope traces draw themselves on */
+@keyframes scope-draw { to { stroke-dashoffset: 0; } }
+.scope-path.draw {
+  stroke-dasharray: var(--len);
+  stroke-dashoffset: var(--len);
+  animation: scope-draw 1.4s ease-out both;
+  animation-delay: var(--delay, 0s);
+}
+@keyframes tp-pop { from { opacity: 0; } }
+.scope-tp { animation: tp-pop 0.35s ease backwards; animation-delay: var(--delay, 0s); }
+
+/* deprecation log prints line by line, with a live cursor */
+@keyframes log-print { from { opacity: 0; } }
+.deplog .log-line { animation: log-print 0.01s steps(1) backwards; }
+.deplog::after {
+  content: "█";
+  display: block;
+  margin-top: 0.8rem;
+  animation: blink 1.1s steps(2, start) infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .board-card, .ballot, .obit, .split-col li, .beginning-list li,
+  .eco-gallery figure, .photo-strip figure, .postit,
+  .balance-bar .side-a, .balance-bar .side-b,
+  .deplog .log-line, .deplog::after, .scope-tp {
+    animation: none;
+  }
+  .scope-path.draw { animation: none; stroke-dasharray: none; stroke-dashoffset: 0; }
+  .postit, .postit:hover { transform: rotate(var(--tilt, 0deg)); transition: none; }
+  .board-card, .board-card:hover { transition: none; }
+}
+
+/* ============================================================
+   PRESENTATION MODE
+   Fills the viewport with no scrolling — for fullscreen 16:9
+   projection. Turns on automatically on wide landscape screens
+   and can be forced on/off with the P key (app.js toggles the
+   `presenting` class on <html>). Views that run taller than the
+   screen are scaled down to fit by app.js.
+   ============================================================ */
+html.presenting,
+html.presenting body { height: 100%; overflow: hidden; }
+html.presenting body { display: flex; flex-direction: column; }
+
+html.presenting .ticker { flex: none; font-size: 1rem; padding: 0.2rem 0; }
+
+html.presenting .site-header {
+  flex: none;
+  max-width: none;
+  width: 100%;
+  padding: 0.9rem 2.5rem 0.4rem;
+}
+html.presenting .masthead-top { font-size: 1rem; letter-spacing: 0.3em; }
+html.presenting .masthead-main { font-size: clamp(1.8rem, 3.4vw, 3.1rem); margin: 0.05em 0; }
+html.presenting .masthead-sub { font-size: 1.1rem; letter-spacing: 0.24em; }
+html.presenting .masthead-note { display: none; }
+
+html.presenting .board-nav {
+  flex: none;
+  max-width: none;
+  width: 100%;
+  margin: 0.5rem 0 0;
+  padding: 0.6rem 2.5rem 0;
+}
+
+html.presenting main {
+  flex: 1 1 auto;
+  min-height: 0;
+  max-width: none;
+  width: 100%;
+  padding: 1.2rem 2.5rem;
+  overflow: hidden;
+}
+html.presenting .view { transform-origin: top left; animation: fade-in-flat 0.35s ease both; height: 100%; }
+@keyframes fade-in-flat { from { opacity: 0; } }
+html.presenting .home-grid {
+  grid-template-columns: repeat(3, 1fr);
+  grid-auto-rows: 1fr;
+  height: 100%;
+}
+html.presenting .board-card { min-height: 0; }
+html.presenting .board-card h2 { font-size: clamp(1.3rem, 1.6vw, 1.8rem); }
+html.presenting .board-head { margin-bottom: 1.1rem; }
+html.presenting .board-head h1 { font-size: clamp(1.6rem, 3vw, 2.6rem); max-width: none; }
+html.presenting .board-pager { display: none; }
+html.presenting .scope-wrap svg { height: min(50vh, 480px); width: auto; max-width: 100%; margin: 0 auto; }
+html.presenting .sample-flag { margin-bottom: 1rem; }
+html.presenting .strip-label { margin-top: 1.2rem; }
+html.presenting .photo-strip { margin-top: 1rem; }
+html.presenting .photo-strip figure { width: 130px; }
+
+html.presenting .site-footer {
+  flex: none;
+  max-width: none;
+  width: 100%;
+  padding: 0.4rem 2.5rem;
+  font-size: 0.78rem;
+}
+
+/* faint CRT scanlines over the whole screen while presenting */
+html.presenting body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  pointer-events: none;
+  background: repeating-linear-gradient(0deg, rgba(13,13,13,0.045) 0 1px, transparent 1px 4px);
+}
+
+/* keyboard hint in the footer, presentation mode only */
+.present-hint {
+  display: none;
+  font-family: var(--pixel);
+  font-weight: 600;
+  font-size: 0.95rem;
+  letter-spacing: 0.15em;
+  white-space: nowrap;
+}
+html.presenting .present-hint { display: inline-block; }
+
+/* autoplay badge */
+.autoplay-badge {
+  position: fixed;
+  right: 1.1rem;
+  bottom: 1.1rem;
+  z-index: 45;
+  background: var(--ink);
+  color: var(--postit);
+  border: 2px solid var(--postit);
+  font-family: var(--pixel);
+  font-weight: 600;
+  font-size: 1.05rem;
+  letter-spacing: 0.2em;
+  padding: 0.15rem 0.7rem 0.25rem;
+}
+.autoplay-badge[hidden] { display: none; }
+.autoplay-badge .dot { animation: blink 1.2s steps(2, start) infinite; }
