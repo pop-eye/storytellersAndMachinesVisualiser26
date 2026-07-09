@@ -138,7 +138,7 @@ const DATA = {
       "blue-sky autonomy outside of data economies",
       "the Oracle ♥",
       "the revolution (as if…)",
-      "A.I. LeBrand",
+      "A rebrand",
       "a luddite-revolution",
       "Tech World"
     ]
