@@ -3,29 +3,31 @@
    ------------------------------------------------------------
    This is the ONLY file you need to edit to populate the site.
 
-   SAMPLE_MODE: while true, the sample entries below are shown
-   and every board carries a "SAMPLE DATA" flag. Set it to false
-   once real transcriptions are in — any board left empty then
-   shows an "awaiting transcription" state instead.
+   SAMPLE_MODE: while true, sample entries are shown and every
+   board carries a "SAMPLE DATA" flag. Now false — the entries
+   below are transcribed from photographs of the real boards.
+   Any board left empty shows an "awaiting transcription" state.
 
    Photos of the physical boards go in /photos and are listed
    in each board's `photos` array (they appear as a strip at
    the bottom of that board's page).
    ============================================================ */
 
-const SAMPLE_MODE = true;
+const SAMPLE_MODE = false;
 
 const DATA = {
 
   /* ---- 1. What is your relationship status with AI? ---------
-     Simple tallies. Count the marks on the board per option.  */
+     Heart stickers counted from the board photo; the two written
+     speech bubbles ("FWB!" and "promiscuous intercourse with
+     multiple AI models") are included in It's complicated. ---- */
   status: {
     photos: [],           // e.g. [{ src: "photos/status-01.jpg", caption: "Board, day 2" }]
     votes: {
-      "We never dated": 4,
+      "We never dated": 3,
       "Happily together": 7,
-      "It's complicated": 15,
-      "We broke up": 5
+      "It's complicated": 11,
+      "We broke up": 3
     }
   },
 
@@ -38,63 +40,69 @@ const DATA = {
     photos: [],
     lines: [
       {
-        label: "Attendee 01",
-        points: [[0, 60], [20, 85], [45, 30], [70, -40], [100, -10]],
+        label: "Red pen — rollercoaster",
+        points: [[0, -5], [3, 95], [10, -70], [22, -80], [38, -15], [46, 35], [54, -45], [70, -55], [88, 25], [97, 90]],
+        turningPoints: []
+      },
+      {
+        label: "Green pen — long climb",
+        points: [[0, -85], [20, -55], [40, -25], [60, 10], [80, 50], [100, 95]],
         turningPoints: [
-          { x: 20, y: 85, text: "First Midjourney render" },
-          { x: 70, y: -40, text: "Client asked for 'AI style'" }
+          { x: 92, y: 78, text: "“I want to know who this is and hear their story please” — asks Phoebe" }
         ]
       },
       {
-        label: "Attendee 02",
-        points: [[0, -30], [30, -50], [55, 10], [80, 45], [100, 55]],
-        turningPoints: [{ x: 55, y: 10, text: "Used it for tedious rotoscoping" }]
+        label: "Green pen — out at 1 year",
+        points: [[0, -80], [8, -30], [13, 25], [17, -20], [22, 30], [28, -25], [36, 10], [43, -20], [48, -75]],
+        turningPoints: []
       },
       {
-        label: "Attendee 03",
-        points: [[0, 90], [25, 70], [50, -70], [75, -80], [100, -85]],
-        turningPoints: [{ x: 50, y: -70, text: "Training data headlines" }]
+        label: "Purple pen — the big hump",
+        points: [[0, -55], [20, -45], [40, 10], [57, 45], [72, 15], [88, -40], [100, -90]],
+        turningPoints: []
       },
       {
-        label: "Attendee 04",
-        points: [[0, 10], [40, 15], [70, 20], [100, 5]],
+        label: "Purple pen — flat since 1997",
+        points: [[0, 15], [11, 15], [13, 25], [15, 15], [41, 15], [43, 25], [45, 15], [71, 15], [73, 25], [75, 15], [100, 13]],
+        turningPoints: [{ x: 2, y: 15, text: "1997" }]
+      },
+      {
+        label: "Purple pen — never bought in",
+        points: [[0, -92], [12, -86], [25, -92], [38, -88], [55, -94], [75, -97], [100, -96]],
         turningPoints: []
       }
     ]
   },
 
-  /* ---- 3. If creative AI disappeared tomorrow... ------------ */
+  /* ---- 3. If creative AI disappeared tomorrow... ------------
+     A couple of notes were hard to read on the photo — marked
+     with (?) where a word is uncertain. ------------------------*/
   celebrateMiss: {
     photos: [],
     celebrate: [
-      "The end of infinite beige concept art",
-      "Commissions coming back to illustrators",
-      "Not having to say 'no, a real photo' to clients",
-      "Silence from the hype cycle"
+      "Discovery through craft, iteration & mistakes from chance encounters",
+      "MADE BY HUMAN — with all our welcome idiosyncrasies",
+      "Less Insta deepfake/bullshit",
+      "It being slightly easier to distinguish truth from lies on social media",
+      "Benefit to education",
+      "End of exploitation of people (?)",
+      "Being able to tell authentic and hard-working creators apart from grifters",
+      "The chance to give attention (?) to anything else…"
     ],
     miss: [
-      "Instant rough drafts at 2am",
-      "Subtitling and translation for free",
-      "Code that explains itself",
-      "A sketch partner that never gets tired"
+      "Ease of use of new tools",
+      "Instant answers",
+      "The comedy of the nonsense in Google “AI Summary”",
+      "Possibilities of leisure",
+      "The exaggerated random ugly images it can generate",
+      "The conversation of possibilities it provided"
     ]
   },
 
   /* ---- 4. Write an obituary for creative AI ----------------- */
   obituaries: {
     photos: [],
-    entries: [
-      {
-        lede: "Creative AI, 2022–2027.",
-        text: "Died peacefully in its sleep after a long battle with diminishing returns. It is survived by a million half-finished side projects and one very tired GPU. In lieu of flowers, please pay an illustrator.",
-        author: "Anonymous, day 1"
-      },
-      {
-        lede: "In loving memory of The Prompt.",
-        text: "It promised us everything and delivered a picture of a hand with seven fingers. It taught us, in the end, what we actually valued — which was each other. Donations to your local life-drawing class.",
-        author: "Post-it, main foyer"
-      }
-    ]
+    entries: []
   },
 
   /* ---- 5. Design the third way -------------------------------
@@ -102,12 +110,7 @@ const DATA = {
      on the board). ---------------------------------------------*/
   thirdWay: {
     photos: [],
-    entries: [
-      { type: "postit", text: "Slow AI: models trained only on work that's freely given, running on renewables, used once a week like a farmers' market." },
-      { type: "written", text: "Tools that show their sources by default — provenance as a feature, not a lawsuit." },
-      { type: "postit", text: "AI as instrument, not oracle. You still have to learn to play it." },
-      { type: "postit", text: "Community-owned models. If it trains on Manchester, Manchester owns it." }
-    ]
+    entries: []
   },
 
   /* ---- 6. What should replace AI in your creative workflow? --
@@ -115,38 +118,29 @@ const DATA = {
      duplicating — cards grow with recurrence. ------------------*/
   replace: {
     photos: [],
-    entries: [
-      { text: "Boredom", count: 6 },
-      { text: "A sketchbook", count: 4 },
-      { text: "Talking to other humans", count: 3 },
-      { text: "Deadlines", count: 2 },
-      { text: "A long walk", count: 2 },
-      { text: "Nothing — keep it", count: 1 },
-      { text: "The library", count: 1 }
-    ]
+    entries: []
   },
 
   /* ---- 7. What have you stopped using AI for and why? ------- */
   stopped: {
     photos: [],
-    entries: [
-      { what: "Writing first drafts", why: "they all sounded like the same person" },
-      { what: "Generating reference images", why: "started warping my own taste" },
-      { what: "Email", why: "people could tell" },
-      { what: "Music recommendations", why: "it kept me in a loop of things I already liked" }
-    ]
+    entries: []
   },
 
   /* ---- 8. The end of AI means the beginning of... ------------ */
   beginning: {
     photos: [],
     entries: [
-      "the archive",
-      "slower software",
-      "apprenticeships again",
-      "cheaper electricity",
-      "art with fingerprints on it",
-      "the next hype cycle, probably"
+      "PYRAMID ACTIVATION",
+      "THINKING",
+      "now",
+      "HUMANITY",
+      "blue-sky autonomy outside of data economies",
+      "the Oracle ♥",
+      "the revolution (as if…)",
+      "A.I. LeBrand",
+      "a luddite-revolution",
+      "Tech World"
     ]
   },
 
